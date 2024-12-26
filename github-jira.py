@@ -21,7 +21,7 @@ def create_jira():
   }
 
   data = request.json
-  comment = data.get('body', '')
+  comment = data.get('comment', {}).get('body', '')
 
   payload = json.dumps( {
     "fields": {
