@@ -3,7 +3,7 @@ from requests.auth import HTTPBasicAuth
 import json
 from dotenv import load_dotenv
 import os
-from flask import Flask
+from flask import Flask, request
 
 app = Flask(__name__)
 
@@ -19,6 +19,9 @@ def create_jira():
     "Accept": "application/json",
     "Content-Type": "application/json"
   }
+
+  data = request.json
+  comment = data.get('body', '')
 
   payload = json.dumps( {
     "fields": {
@@ -48,15 +51,17 @@ def create_jira():
     "update": {}
   } )
 
-  response = requests.request(
-    "POST",
-    url,
-    data=payload,
-    headers=headers,
-    auth=auth
-  )
+  if comment == "/jira":
+    response = requests.request(
+      "POST",
+      url,
+      data=payload,
+      headers=headers,
+      auth=auth
+    )
+    return json.dumps(json.loads(response.text), sort_keys=True, indent=4, separators=(",", ": "))
 
-  return json.dumps(json.loads(response.text), sort_keys=True, indent=4, separators=(",", ": "))
+  return ("Comment should be /jira.")
 
 if __name__ == '__main__':
   app.run(host='0.0.0.0', port=5000)
